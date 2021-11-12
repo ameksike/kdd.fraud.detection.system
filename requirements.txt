@@ -1,0 +1,9 @@
+numpy
+pandas
+scikit-learn
+flask
+flask_sqlalchemy
+flask_marshmallow
+marshmallow-sqlalchemy
+joblib
+sympy
