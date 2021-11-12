@@ -4,61 +4,38 @@ import numpy as np
 import joblib
 from sklearn import linear_model
 from sympy.ntheory import primefactors as pf
+import os
 
 class EtlService(metaclass=SingletonMeta):
+    def setEda(self, eda):
+        self.eda = eda
 
-    def generate(self, sample_size):
-        x_data = np.array([self.factors_prime_encode(i) for i in range(101, 101 + int(sample_size))])
-        y_target = np.array([[self.fizzbuzz(i)] for i in range(101, 101 + int(sample_size))])
-        z_samples = np.append(x_data, y_target, axis=1)
-        df = pd.DataFrame(data=z_samples, columns=["2", "3", "5", "7", "11", "13", "Class"])
-        return df
+    def readDataSource(self):
+        filename = os.path.dirname(__file__) + "../../../../data/data_source.csv"
+        filename = os.path.abspath(filename)
+        properties = self.eda.getProperties()
 
-    # The ground truth (correct) target values of the first 100 numbers
-    def generate_first100_fizz_buzz(self):
-        sample_fizz_buzz = np.array([self.factors_prime_encode(i) for i in range(1, 100 + 1)])
-        target_fizz_buzz = np.array([[self.fizzbuzz(i)] for i in range(1, 100 + 1)])
-        z_fizz_buzz = np.append(sample_fizz_buzz, target_fizz_buzz, axis=1)
-        df = pd.DataFrame(data=z_fizz_buzz, columns=["2", "3", "5", "7", "11", "13", "Class"])
-        df.to_csv('fist100FizzBuzz_ground_truth.csv', index=False)
+        data = pd.read_csv(filename, usecols=properties, dtype={
+            'user verification level': str, 
+            'email valid': str, 
+            'ip vpn': str,
+            'phone valid': str
+        }, low_memory=False)
+        
+        return data
 
-    def switch_index_encode(self, argument):
-        switcher = {
-            2: 0,
-            3: 1,
-            5: 2,
-            7: 3,
-            11: 4,
-            13: 5
-        }
-        return switcher.get(argument, -1)
+    def featureEngineering(self, data):
+        return data
 
-    def factors_prime_encode(self, number):
-        factors_x = pf(number)
-        code = [0] * 6
-        for factor in factors_x:
-            index = self.switch_index_encode(factor)
-            if index != -1:
-                code[index] = 1
-        return code
+    def generate(self):
+        data = self.readDataSource()
+        data = self.featureEngineering(data)
+        
+        path = os.path.dirname(__file__) + "../../../../data/"
+        data.to_csv(path + 'dataMiningView.csv')
+        return data.shape
 
-    def fizzbuzz(self, i):
-        if i % 15 == 0:
-            return 1
-        if i % 5 == 0:
-            return 2
-        if i % 3 == 0:
-            return 3
-        return 4
 
-    def switch_fizz_buzz(self, argument):
-        switcher = {
-            4: "None",
-            3: "Fizz",
-            2: "Buzz",
-            1: "FizzBuzz"
-        }
-        return switcher.get(argument, -1)
 
     def save_object(self, filename, model):
         with open('' + filename, 'wb') as file:

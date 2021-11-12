@@ -20,24 +20,6 @@ class MlService(metaclass=SingletonMeta):
             "label": label
         }
 
-    def classifyList(self, filename, num_from, num_to):
-        if (num_from < num_to) and (num_from >= 1 and num_to <= 100):
-            load_model_lr = joblib.load(filename)
-            # select the range [1:100] Ground Truth
-            df = pd.read_csv('fist100FizzBuzz_ground_truth.csv')
-            y_target = np.array(df['Class'])[num_from - 1:num_to]
-            preds = []
-            result = ""
-            for i in range(num_from, num_to + 1):
-                predict = load_model_lr.predict([self.etl.factors_prime_encode(i)])
-                preds.append(predict[0])
-                if self.etl.switch_fizz_buzz(predict[0]) == "None":
-                    result += str(i) + " "
-                else:
-                    result += self.etl.switch_fizz_buzz(predict[0]) + " "
-
-            return result, f1_score(y_target, preds, average='micro')
-
     def train(self, filename):
         df = pd.read_csv(filename)
         print("Example of first sample data set")
