@@ -28,7 +28,7 @@ class EtlService(metaclass=SingletonMeta):
         # Missing value
         data = self.missingValue(data)
         # Same format
-        #data = self.sameFormat(data)
+        data = self.sameFormat(data)
         # Checking outlier values
         #data = self.IQR_ChekOutlierValues(data)
         # Featurization data
@@ -48,9 +48,20 @@ class EtlService(metaclass=SingletonMeta):
         dataObj = data.select_dtypes(include=np.object).columns.tolist()
         # data[dataObj] = data[dataObj].astype('string')
         data[dataObj] = data[dataObj].fillna('none')
-
         obj_columnsFloat = data.select_dtypes(include=np.float64).columns.tolist()
         data[obj_columnsFloat] = data[obj_columnsFloat].fillna(0)
+        return data
+
+    def sameFormat(self, data):
+        # Select columns which contains any value feature: 'OTHER', 'CURL', 'NONE'
+        filter = ((data == 'OTHER') | (data == 'CURL') | (data == 'NONE')).any()
+        obj_columnsReplace = data.loc[:, filter].columns.tolist()
+        # unify feature value
+        data[obj_columnsReplace] = data[obj_columnsReplace].replace(['OTHER'], 'Other')
+        data[obj_columnsReplace] = data[obj_columnsReplace].replace(['NONE'], 'none')
+        data[obj_columnsReplace] = data[obj_columnsReplace].replace(['CURL'], 'curl')
+        filterComprobation = ((data == 'OTHER') | (data == 'CURL') | (data == 'NONE')).any()
+        print(len(data.loc[:, filterComprobation].columns.tolist()))
         return data
 
     def save_object(self, filename, model):
