@@ -25,6 +25,14 @@ class EtlService(metaclass=SingletonMeta):
         return data
 
     def featureEngineering(self, data):
+        # Missing value
+        data = self.missingValue(data)
+        # Same format
+        #data = self.sameFormat(data)
+        # Checking outlier values
+        #data = self.IQR_ChekOutlierValues(data)
+        # Featurization data
+        #data = self.featurizationData(data)
         return data
 
     def generate(self):
@@ -35,7 +43,15 @@ class EtlService(metaclass=SingletonMeta):
         data.to_csv(path + 'dataMiningView.csv')
         return data.shape
 
+    #description set 'none' to empty string, and set 0 to empty number
+    def missingValue(self, data):
+        dataObj = data.select_dtypes(include=np.object).columns.tolist()
+        # data[dataObj] = data[dataObj].astype('string')
+        data[dataObj] = data[dataObj].fillna('none')
 
+        obj_columnsFloat = data.select_dtypes(include=np.float64).columns.tolist()
+        data[obj_columnsFloat] = data[obj_columnsFloat].fillna(0)
+        return data
 
     def save_object(self, filename, model):
         with open('' + filename, 'wb') as file:
