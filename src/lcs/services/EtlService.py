@@ -112,9 +112,22 @@ class EtlService(metaclass=SingletonMeta):
 
     def jenksBreakMethod(self, name_feature, dataDepositByFeature, dataDeposits):
         # with cleaning outliers 'transaction amount'
-        labels = ['small', 'medium', 'big', 'outlier']
+        labels = ['small', 'medium', 'big']
         breaks = jenkspy.jenks_breaks(dataDepositByFeature[name_feature], nb_class=3)
-        breaks.append(dataDeposits[name_feature].max()) # tener en cuenta el el rango minimo
+        minValue = dataDeposits[name_feature].min()
+        maxvalue = dataDeposits[name_feature].max()
+
+        if breaks[0] != minValue:
+            breaks.insert(0, minValue)
+            labels.insert(0, 'outlier-left')
+
+        if breaks[len(breaks)-1] != maxvalue:
+            breaks.append(maxvalue)
+            labels.append('outlier-right')
+        
+        print('////////////////////////////////////////////////////')
+        print(breaks)
+        print('////////////////////////////////////////////////////')
         numb_Bins = len(breaks) - 1
 
         print(breaks)
