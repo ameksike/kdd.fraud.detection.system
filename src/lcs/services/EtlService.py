@@ -124,10 +124,7 @@ class EtlService(metaclass=SingletonMeta):
         if breaks[len(breaks)-1] != maxvalue:
             breaks.append(maxvalue)
             labels.append('outlier-right')
-        
-        print('////////////////////////////////////////////////////')
-        print(breaks)
-        print('////////////////////////////////////////////////////')
+
         numb_Bins = len(breaks) - 1
 
         print(breaks)
@@ -135,6 +132,87 @@ class EtlService(metaclass=SingletonMeta):
 
         dataDeposits[name_feature] = pd.cut(dataDeposits[name_feature], bins=breaks, labels=labels, include_lowest=True)
         return dataDeposits
+
+    # Featurizing the data
+    def featurizationData(self, dataDeposits):
+        # Separation of columns into numeric and categorical columns
+        types = np.array([dt for dt in dataDeposits.dtypes])
+        all_columns = dataDeposits.columns.values
+        is_num = (types != 'object')
+        is_category = (types != 'object') & (types != 'float64') & (types != 'int64')
+        isClass = all_columns == 'fraud state'
+        isDiscretization = (all_columns == 'user balance') | (all_columns == 'transaction amount')
+        num_cols = all_columns[is_num & ~isDiscretization]
+        cat_cols = all_columns[~is_num & ~isClass]
+        category_cols = all_columns[is_category]
+
+        print(cat_cols)
+        print(category_cols)
+
+        # Featurization of categorical data
+        # calling the above defined functions
+        # categorical columns to perform response coding on
+
+        for col in cat_cols:
+            # extracting the dictionary with values corresponding to TARGET variable 0 and 1 for each of the categories
+            mapping_dictionary = self.responseFit(dataDeposits, col)
+            # mapping this dictionary with our DataFrame
+            self.responseTransform(dataDeposits, col, mapping_dictionary)
+            # removing the original categorical columns
+            _ = dataDeposits.pop(col)
+
+        for col in category_cols:
+            # extracting the dictionary with values corresponding to TARGET variable 0 and 1 for each of the categories
+            mapping_dictionary = self.responseFit(dataDeposits, col)
+            # mapping this dictionary with our DataFrame
+            self.responseTransform(dataDeposits, col, mapping_dictionary)
+            # removing the original categorical columns
+            _ = dataDeposits.pop(col)
+
+        return dataDeposits
+
+    def responseFit(self, data, column):
+        '''
+        Response Encoding Fit Function
+        Function to create a vocabulary with the probability of occurrence of each category for categorical features
+        for a given class label.
+        Inputs:
+            self
+            data: DataFrame
+                training Dataset
+            column: str
+                the categorical column for which vocab is to be generated
+        Returns:
+            Dictionary of probability of occurrence of each category in a particular class label.
+        '''
+        dict_occurrences = {'APPROVE': {}, 'DECLINE': {}}
+        for label in ['DECLINE', 'APPROVE']:
+            dict_occurrences[label] = dict(
+                (data[column][data['fraud state'] == label].value_counts() / data[column].value_counts()).fillna(0))
+        return dict_occurrences
+
+    def responseTransform(self, data, column, dict_mapping):
+        '''
+        Response Encoding Transform Function
+        Function to transform the categorical feature into two features, which contain the probability
+        of occurrence of that category for each class label.
+        Inputs:
+            self
+            data: DataFrame
+                DataFrame whose categorical features are to be encoded
+            column: str
+                categorical column whose encoding is to be done
+            dict_mapping: dict
+                Dictionary obtained from Response Fit function for that particular column
+        Returns:
+            DataFrame with encoded categorical feature.
+        '''
+        data[column + '_DECLINE'] = data[column].map(dict_mapping['DECLINE'])
+        data[column + '_APPROVE'] = data[column].map(dict_mapping['APPROVE'])
+        # print(data[column + '_DECLINE'])
+        # print(data[column + '_APPROVE'])
+
+
 
 
     def save_object(self, filename, model):
