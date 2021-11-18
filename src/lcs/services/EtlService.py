@@ -32,7 +32,7 @@ class EtlService(metaclass=SingletonMeta):
         # Checking outlier values
         data = self.iqrChekOutlierValues(data)
         # Featurization data
-        #data = self.featurizationData(data)
+        data = self.featurizationData(data)
         return data
 
     def generate(self):
