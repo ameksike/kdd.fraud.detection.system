@@ -8,3 +8,5 @@ marshmallow-sqlalchemy
 joblib
 sympy
 jenkspy
+imblearn
+lightgbm

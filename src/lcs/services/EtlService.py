@@ -21,6 +21,10 @@ class EtlService(metaclass=SingletonMeta):
             'ip vpn': str,
             'phone valid': str
         }, low_memory=False)
+
+        # used only class, clean data 
+        data = data[((data['fraud state'] == 'APPROVE') | (data['fraud state'] == 'DECLINE'))]
+        print('<<< EtlService:EtlService: The shape of data:', data.shape)
         
         return data
 
@@ -212,8 +216,11 @@ class EtlService(metaclass=SingletonMeta):
         # print(data[column + '_DECLINE'])
         # print(data[column + '_APPROVE'])
 
-
-
+    def replaceClassValue(self, data):
+        # Replace class value: 'APPROVE' = 0, 'DECLINE' = 1
+        data['fraud state'] = data['fraud state'].replace(['APPROVE'], 0)
+        data['fraud state'] = data['fraud state'].replace(['DECLINE'], 1)
+        return data
 
     def save_object(self, filename, model):
         with open('' + filename, 'wb') as file:

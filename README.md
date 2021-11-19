@@ -26,3 +26,36 @@
 ## Run 2 with python
 - python bin/server.py 
 - http://127.0.0.1:8000/
+
+
+## Endopints
+
+### generate 
+Request:
+```
+POST http://127.0.0.1:8000/api/lcs/generate
+```
+Response:
+```json
+{
+  "data": [
+    41872,
+    77
+  ]
+}
+```
+
+### Train
+Request:
+```
+POST http://127.0.0.1:8000/api/lcs/train
+{
+    "modelname": "dataMiningView"
+}
+```
+Response:
+```json
+{
+
+}
+```
