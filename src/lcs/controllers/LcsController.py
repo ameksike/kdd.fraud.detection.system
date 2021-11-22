@@ -3,41 +3,45 @@ from flask import Flask, request, jsonify, make_response
 from server import app
 from services.EtlService import EtlService
 from services.MlService import MlService
+from services.EdaService import EdaService
+
+srvEda = EdaService()
 
 srvEtl = EtlService()
+srvEtl.setEda(srvEda)
+
 srvMl = MlService()
 srvMl.setEtl(srvEtl)
 
+'''
+    Generate Data Mining View
+'''
 @app.route("/api/lcs/generate", methods=["POST"])
 def generate():
-    sample_size = request.json.get("size", 100)
-    result = srvEtl.generate(sample_size)
-    resp = make_response(result.to_csv(index=False))
-    resp.headers["Content-Disposition"] = "attachment; filename=sample_data_" + str(sample_size) +".csv"
-    resp.headers["Content-Type"] = "text/csv"
-    return resp
+    result = srvEtl.generate()
+    return jsonify({
+        "data": result 
+    })
 
+'''
+    Generate Model PKL
+'''
 @app.route("/api/lcs/traing", methods=["POST"])
 def traing():
     path = os.path.dirname(__file__) + "../../../../data/"
-    filename = request.json.get("modelname", "sample_data_100")
+    filename = request.json.get("modelname", "dataMiningView")
     filename = path + filename + ".csv"
     filename = os.path.abspath(filename)
-
-    cross_validation_scores, cross_validation_score_mean, accuracy_score, precision_score, recall_score, f1_score, classifer_name = \
-        srvMl.train(filename)
+    roc_auc_score = srvMl.train(filename)
 
     payload = {
-        "cross_validation_scores": cross_validation_scores.tolist(),
-        "cross_validation_score_mean": cross_validation_score_mean,
-        "accuracy_score": accuracy_score,
-        "precision_score": precision_score,
-        "recall_score": recall_score,
-        "f1_score": f1_score,
-        "classifer_name": classifer_name
+        "roc_auc_score": roc_auc_score.tolist(),
     }
     return jsonify(payload)
 
+'''
+    Classify Data
+'''
 @app.route("/api/lcs/classify", methods=["POST"])
 def classify():
     path = os.path.dirname(__file__) + "../../../../data/"
