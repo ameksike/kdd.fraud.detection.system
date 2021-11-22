@@ -17,6 +17,7 @@
 ## Install
 - git clone https://github.com/ameksike/kdd.fraud.detection.system.git
 - pip install -r requirements.txt
+- python -m pip freeze > requirements.txt
 - pip list
 
 ## Run 1 with heroku
