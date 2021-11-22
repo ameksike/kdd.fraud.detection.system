@@ -20,6 +20,13 @@
 - python -m pip freeze > requirements.txt
 - pip list
 
+
+## Develop
+- pip install virtualenv
+- virtualenv env
+- .\env\Scripts\activate
+- pip install -r requirements.txt
+
 ## Run 1 with heroku
 - heroku local web -f Procfile.win2
 - http://127.0.0.1:8000/
