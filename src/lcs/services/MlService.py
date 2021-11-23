@@ -213,6 +213,13 @@ class MlService(metaclass=SingletonMeta):
         print('>>> MLService:logisticRegressionTest >>>', 'For best alpha {0}, The Test AUC score is {1}'.format(best_alpha,
                                                                     roc_auc_score(y_test, y_pred_prob)))
         y_pred = logreg.predict(X_test_final[selected_features])
+
+        print('>>> MLService:logisticRegressionTest >>> y_pred_prob', y_pred_prob)
+        print('>>> MLService:logisticRegressionTest >>> y_train', y_train)
+        print('>>> MLService:logisticRegressionTest >>> y_test', y_test)
+        print('>>> MLService:logisticRegressionTest >>> y_val', y_val)        
+        print('>>> MLService:logisticRegressionTest >>> y_pred', y_pred)
+
         print('>>> MLService:logisticRegressionTest >>>', 'The test AUC score is :', roc_auc_score(y_test, y_pred_prob))
         print('>>> MLService:logisticRegressionTest >>>', 'The percentage of misclassified points {:05.2f}% :'.format((1 - accuracy_score(y_test, y_pred)) * 100))
         # IMG plot_confusion_matrix(y_test, y_pred) 
