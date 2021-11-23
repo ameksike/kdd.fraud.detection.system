@@ -16,16 +16,19 @@
 
 ## Install
 - git clone https://github.com/ameksike/kdd.fraud.detection.system.git
-- pip install -r requirements.txt
-- python -m pip freeze > requirements.txt
-- pip list
-
-
-## Develop
-- pip install virtualenv
 - virtualenv env
 - .\env\Scripts\activate
 - pip install -r requirements.txt
+- pip list
+
+## Develop
+- git clone https://github.com/ameksike/kdd.fraud.detection.system.git
+- pip install virtualenv
+- virtualenv env
+- .\env\Scripts\activate
+- pip install Flask
+- pip install pandas
+- python -m pip freeze > requirements.txt
 
 ## Run 1 with heroku
 - heroku local web -f Procfile.win2
