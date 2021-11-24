@@ -187,7 +187,8 @@ class MlService(metaclass=SingletonMeta):
                 "alpha": alpha[maxIndex],
                 "score": lstScoring[maxIndex]
             },
-            "list": cv_auc_score
+            "list": cv_auc_score,
+            "clasifier": SGDClassifier(alpha=alpha[maxIndex], penalty='l1', class_weight='balanced', loss='log', random_state=28)
         }
         print('>>> MLService:logisticRegressionTrain >>>', 'The Optimal C value is:', trainModel['max']['alpha'])
         return trainModel
@@ -247,6 +248,10 @@ class MlService(metaclass=SingletonMeta):
         # Test Model
         roc_auc_score = self.logisticRegressionTest(model['max']['alpha'], X_train_final, X_val_final, X_test_final, y_train, y_val, y_test, selected_features)
         
+        classif_name = 'data/classifier_' + algorithm + '_data_model' + '.pkl'
+        self.etl.save_object(classif_name, model["clasifier"])
+        del model["clasifier"]
+
         print('>>> MLService:train >>>', 'Models Done!!!!')
         return {
             "train": model,
