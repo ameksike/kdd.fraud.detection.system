@@ -151,7 +151,7 @@ class MlService(metaclass=SingletonMeta):
     def logisticRegressionTrain(self, X_train_final, X_val_final, X_test_final, y_train, y_val, selected_features):
         # Logistic regression with selected features ... Balanced classes
         alpha = np.logspace(-4, 4, 9)
-        cv_auc_score = []
+        cv_auc_score = {}
 
         # replace null values for data mean
         X_train_final = X_train_final.fillna(X_train_final.mean())
@@ -176,15 +176,26 @@ class MlService(metaclass=SingletonMeta):
             sig_clf = CalibratedClassifierCV(clf, method='sigmoid')
             sig_clf.fit(X_train_final[selected_features], y_train)
             y_pred_prob = sig_clf.predict_proba(X_val_final[selected_features])[:, 1]
-            cv_auc_score.append(roc_auc_score(y_val, y_pred_prob))
+            #cv_auc_score.append(roc_auc_score(y_val, y_pred_prob))
+            cv_auc_score[ str( i) ] = roc_auc_score(y_val, y_pred_prob)
             print('>>> MLService:logisticRegressionTrain >>>', 'For alpha {0}, cross validation AUC score {1}'.format(i, roc_auc_score(y_val, y_pred_prob)))
 
-        print('>>> MLService:logisticRegressionTrain >>>', 'The Optimal C value is:', alpha[np.argmax(cv_auc_score)])
-        return cv_auc_score
+        lstScoring = list(cv_auc_score.values())
+        maxIndex = np.argmax(lstScoring)
+        trainModel = {
+            "max": {
+                "alpha": alpha[maxIndex],
+                "score": lstScoring[maxIndex]
+            },
+            "list": cv_auc_score
+        }
+        print('>>> MLService:logisticRegressionTrain >>>', 'The Optimal C value is:', trainModel['max']['alpha'])
+        return trainModel
 
     def logisticRegressionTest(self, cv_auc_score, X_train_final, X_val_final, X_test_final, y_train, y_val, y_test, selected_features):
         alpha = np.logspace(-4, 4, 9)
-        best_alpha = alpha[np.argmax(cv_auc_score)]
+        #best_alpha = alpha[np.argmax(cv_auc_score)]
+        best_alpha = cv_auc_score
         logreg = SGDClassifier(alpha=best_alpha, class_weight='balanced', penalty='l1', loss='log', random_state=28)
 
         X_train_final = X_train_final.fillna(X_train_final.mean())
@@ -231,10 +242,18 @@ class MlService(metaclass=SingletonMeta):
         # Selection of features ... Balanced classes
         selected_features = self.selectionFeatures(X_train_final, y_train)
         # Train Model
-        cv_auc_score = self.logisticRegressionTrain(X_train_final, X_val_final, X_test_final, y_train, y_val, selected_features)
+        trainModel = self.logisticRegressionTrain(X_train_final, X_val_final, X_test_final, y_train, y_val, selected_features)
         # Test Model
-        roc_auc_score = self.logisticRegressionTest(cv_auc_score, X_train_final, X_val_final, X_test_final, y_train, y_val, y_test, selected_features)
+        roc_auc_score = self.logisticRegressionTest(trainModel['max']['alpha'], X_train_final, X_val_final, X_test_final, y_train, y_val, y_test, selected_features)
         
         print('>>> MLService:train >>>', 'Models Done!!!!')
-        return roc_auc_score
+        return {
+            "train": trainModel,
+            "test": {
+                "train": roc_auc_score[0],
+                "validation": roc_auc_score[1],
+                "value": roc_auc_score[2]
+            }
+        } 
+        
 

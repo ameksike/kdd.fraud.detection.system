@@ -32,13 +32,10 @@ def traing():
     filename = request.json.get("modelname", "dataMiningView")
     filename = path + filename + ".csv"
     filename = os.path.abspath(filename)
-    roc_auc_score = srvMl.train(filename)
+    model = srvMl.train(filename)
 
-    print('>>> LcsController:traing >>> roc_auc_score', roc_auc_score)
-    payload = {
-        "roc_auc_score": roc_auc_score,
-    }
-    return jsonify(payload)
+    print('>>> LcsController:traing >>> model', model)
+    return jsonify(model)
 
 '''
     Classify Data
