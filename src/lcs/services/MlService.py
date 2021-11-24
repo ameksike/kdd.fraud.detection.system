@@ -231,7 +231,7 @@ class MlService(metaclass=SingletonMeta):
         # IMG plot_confusion_matrix(y_test, y_pred)
         return roc_auc_score(y_train, y_pred_prob_train), roc_auc_score(y_val, y_pred_prob_val), roc_auc_score(y_test, y_pred_prob_test)
         
-    def train(self, filename):
+    def train(self, filename, algorithm="logisticRegression"):
         # Read Mining View
         data = self.readDataMiningView(filename)
         # Dividing Mining View
@@ -241,14 +241,15 @@ class MlService(metaclass=SingletonMeta):
         X_train_final, X_val_final, X_test_final, y_train, y_val, y_test = self.readDataTrainTest()
         # Selection of features ... Balanced classes
         selected_features = self.selectionFeatures(X_train_final, y_train)
+
         # Train Model
-        trainModel = self.logisticRegressionTrain(X_train_final, X_val_final, X_test_final, y_train, y_val, selected_features)
+        model = self.logisticRegressionTrain(X_train_final, X_val_final, X_test_final, y_train, y_val, selected_features)
         # Test Model
-        roc_auc_score = self.logisticRegressionTest(trainModel['max']['alpha'], X_train_final, X_val_final, X_test_final, y_train, y_val, y_test, selected_features)
+        roc_auc_score = self.logisticRegressionTest(model['max']['alpha'], X_train_final, X_val_final, X_test_final, y_train, y_val, y_test, selected_features)
         
         print('>>> MLService:train >>>', 'Models Done!!!!')
         return {
-            "train": trainModel,
+            "train": model,
             "test": {
                 "train": roc_auc_score[0],
                 "validation": roc_auc_score[1],

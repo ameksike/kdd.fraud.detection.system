@@ -38,6 +38,16 @@ def traing():
     return jsonify(model)
 
 '''
+    Generate Model PKL
+'''
+@app.route("/api/lcs/traing", methods=["GET"])
+def traingInfo():
+    return jsonify({
+        "dataMinings": ["dataMiningView"],
+        "algorithms": ["logisticRegression", "ensembleClassify"]
+    })
+
+'''
     Classify Data
 '''
 @app.route("/api/lcs/classify", methods=["POST"])
