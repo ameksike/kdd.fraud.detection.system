@@ -34,8 +34,9 @@ def traing():
     filename = os.path.abspath(filename)
     roc_auc_score = srvMl.train(filename)
 
+    print('>>> LcsController:traing >>> roc_auc_score', roc_auc_score)
     payload = {
-        "roc_auc_score": roc_auc_score.tolist(),
+        "roc_auc_score": roc_auc_score,
     }
     return jsonify(payload)
 

@@ -53,8 +53,8 @@ class MlService(metaclass=SingletonMeta):
     def saveData(self, X_train, X_val, X_test, y, y_train, y_val, y_test):
         X_train.to_csv('data/train_X_train_BalancedClasses.csv')
         X_val.to_csv('data/train_X_val_final_BalancedClasses.csv')
-        X_test.to_csv('data/train_X_test_final_BalancedClasses.csv')
-        print(X_train.shape)
+        X_test.to_csv('data/train_X_test_final_BalancedClasses.csv')        
+        print('>>> MLService:saveData >>> The shape of data:', X_train.shape)
 
         # Saving the numpy arrays into text files for future use
         np.savetxt('data/train_y_BalancedClasses.txt', y, fmt='%s')
@@ -123,6 +123,8 @@ class MlService(metaclass=SingletonMeta):
         
     def selectionFeatures(self, X_train_final, y_train):
         # Selection of features ... Balanced classes
+        # https://lightgbm.readthedocs.io/en/latest/pythonapi/lightgbm.LGBMClassifier.html
+        # https://neptune.ai/blog/lightgbm-parameters-guide
         model_sk = lgb.LGBMClassifier(boosting_type='gbdt', max_depth=7, learning_rate=0.01, n_estimators=2000,
                                     class_weight='balanced', subsample=0.9, colsample_bytree=0.8, n_jobs=-1)
 
@@ -166,7 +168,7 @@ class MlService(metaclass=SingletonMeta):
         # Check if it contains infinite data
         # False: Contains
         # True: Not included
-        print(np.isfinite(X_train_final).all())
+        # print(np.isfinite(X_train_final).all())
 
         for i in alpha:
             clf = SGDClassifier(alpha=i, penalty='l1', class_weight='balanced', loss='log', random_state=28)
@@ -204,26 +206,19 @@ class MlService(metaclass=SingletonMeta):
         logreg.fit(X_train_final[selected_features], y_train)
         logreg_sig_clf = CalibratedClassifierCV(logreg, method='sigmoid')
         logreg_sig_clf.fit(X_train_final[selected_features], y_train)
-        y_pred_prob = logreg_sig_clf.predict_proba(X_train_final[selected_features])[:, 1]
-        print('>>> MLService:logisticRegressionTest >>>', 'For best alpha {0}, The Train AUC score is {1}'.format(best_alpha, roc_auc_score(y_train, y_pred_prob)))
-        y_pred_prob = logreg_sig_clf.predict_proba(X_val_final[selected_features])[:, 1]
-        print('>>> MLService:logisticRegressionTest >>>', 'For best alpha {0}, The Cross validated AUC score is {1}'.format(best_alpha,
-                                                                                roc_auc_score(y_val, y_pred_prob)))
-        y_pred_prob = logreg_sig_clf.predict_proba(X_test_final[selected_features])[:, 1]
-        print('>>> MLService:logisticRegressionTest >>>', 'For best alpha {0}, The Test AUC score is {1}'.format(best_alpha,
-                                                                    roc_auc_score(y_test, y_pred_prob)))
+
+        y_pred_prob_train = logreg_sig_clf.predict_proba(X_train_final[selected_features])[:, 1]
+        print('>>> MLService:logisticRegressionTest >>>', 'For best alpha {0}, The Train AUC score is {1}'.format(best_alpha, roc_auc_score(y_train, y_pred_prob_train)))
+        y_pred_prob_val = logreg_sig_clf.predict_proba(X_val_final[selected_features])[:, 1]
+        print('>>> MLService:logisticRegressionTest >>>', 'For best alpha {0}, The Cross validated AUC score is {1}'.format(best_alpha, roc_auc_score(y_val, y_pred_prob_val)))
+        y_pred_prob_test = logreg_sig_clf.predict_proba(X_test_final[selected_features])[:, 1]
+        print('>>> MLService:logisticRegressionTest >>>', 'For best alpha {0}, The Test AUC score is {1}'.format(best_alpha, roc_auc_score(y_test, y_pred_prob_test)))
+        
         y_pred = logreg.predict(X_test_final[selected_features])
-
-        print('>>> MLService:logisticRegressionTest >>> y_pred_prob', y_pred_prob)
-        print('>>> MLService:logisticRegressionTest >>> y_train', y_train)
-        print('>>> MLService:logisticRegressionTest >>> y_test', y_test)
-        print('>>> MLService:logisticRegressionTest >>> y_val', y_val)        
-        print('>>> MLService:logisticRegressionTest >>> y_pred', y_pred)
-
-        print('>>> MLService:logisticRegressionTest >>>', 'The test AUC score is :', roc_auc_score(y_test, y_pred_prob))
+        print('>>> MLService:logisticRegressionTest >>>', 'The test AUC score is :', roc_auc_score(y_test, y_pred_prob_test))
         print('>>> MLService:logisticRegressionTest >>>', 'The percentage of misclassified points {:05.2f}% :'.format((1 - accuracy_score(y_test, y_pred)) * 100))
-        # IMG plot_confusion_matrix(y_test, y_pred) 
-        return roc_auc_score(y_train, y_pred_prob),  roc_auc_score(y_val, y_pred_prob), roc_auc_score(y_test, y_pred_prob)
+        # IMG plot_confusion_matrix(y_test, y_pred)
+        return roc_auc_score(y_train, y_pred_prob_train), roc_auc_score(y_val, y_pred_prob_val), roc_auc_score(y_test, y_pred_prob_test)
         
     def train(self, filename):
         # Read Mining View
