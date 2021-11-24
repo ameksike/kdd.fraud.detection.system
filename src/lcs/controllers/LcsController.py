@@ -32,12 +32,20 @@ def traing():
     filename = request.json.get("modelname", "dataMiningView")
     filename = path + filename + ".csv"
     filename = os.path.abspath(filename)
-    roc_auc_score = srvMl.train(filename)
+    model = srvMl.train(filename)
 
-    payload = {
-        "roc_auc_score": roc_auc_score.tolist(),
-    }
-    return jsonify(payload)
+    print('>>> LcsController:traing >>> model', model)
+    return jsonify(model)
+
+'''
+    Generate Model PKL
+'''
+@app.route("/api/lcs/traing", methods=["GET"])
+def traingInfo():
+    return jsonify({
+        "dataMinings": ["dataMiningView"],
+        "algorithms": ["logisticRegression", "ensembleClassify"]
+    })
 
 '''
     Classify Data
