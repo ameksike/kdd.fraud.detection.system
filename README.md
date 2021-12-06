@@ -59,7 +59,7 @@ Response:
 ### Train
 Request:
 ```
-POST http://127.0.0.1:8000/api/lcs/train
+POST http://127.0.0.1:8000/api/lcs/traing
 {
     "modelname": "dataMiningView"
 }
@@ -89,6 +89,24 @@ Response:
       "score": 0.8783281573682612
     }
   }
+}
+```
+
+### Traing information
+Request:
+```
+GET http://127.0.0.1:8000/api/lcs/traing
+```
+Response:
+```json
+{
+  "algorithms": [
+    "logisticRegression", 
+    "ensembleClassify"
+  ], 
+  "dataMinings": [
+    "dataMiningView"
+  ]
 }
 ```
 
