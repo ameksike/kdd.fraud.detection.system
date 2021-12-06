@@ -71,6 +71,7 @@ class EtlService(metaclass=SingletonMeta):
     
     #format variables with outlier problems, obtain the limits that go from the mean, then create ranges with those values and are labeled
     def iqrChekOutlierValues(self, dataDeposits, action='train'):
+        print('>>> EtlService:iqrChekOutlierValues >>>')
         # checking outlier values
         q1_amount_transaction_amount = dataDeposits['transaction amount'].quantile(.25)
         q3_amount_transaction_amount = dataDeposits['transaction amount'].quantile(.75)
@@ -121,6 +122,7 @@ class EtlService(metaclass=SingletonMeta):
         return dataDeposits
 
     def generateOutlierModel(self, name_feature, dataDepositByFeature, dataDeposits):
+        print('>>> EtlService:generateOutlierModel >>>')
         labels = ['small', 'medium', 'big']
         breaks = jenkspy.jenks_breaks(dataDepositByFeature[name_feature], nb_class=3)
         minValue = dataDeposits[name_feature].min()
@@ -154,6 +156,7 @@ class EtlService(metaclass=SingletonMeta):
     
     # avoid Outlier from features
     def jenksBreakMethodTrain(self, name_feature, dataDepositByFeature, dataDeposits):
+        print('>>> EtlService:jenksBreakMethodTrain >>>')
         # with cleaning outliers 'transaction amount'
         outlierData = self.generateOutlierModel(dataDepositByFeature, dataDeposits)
         dataDeposits[name_feature] =  self.avoidOutlier(name_feature, dataDeposits, outlierData)
@@ -161,6 +164,7 @@ class EtlService(metaclass=SingletonMeta):
         
     # avoid Outlier from features
     def jenksBreakMethodClasify(self, name_feature, dataDepositByFeature, dataDeposits):
+        print('>>> EtlService:jenksBreakMethodClasify >>>')
         # with cleaning outliers 'transaction amount'
         filename = name_feature.replace(" ", "_")
         outlierData = self.load_object(filename)
@@ -169,6 +173,7 @@ class EtlService(metaclass=SingletonMeta):
 
     # Featurizing the data
     def featurizationData(self, dataDeposits):
+        print('>>> EtlService:featurizationData >>>')
         # Separation of columns into numeric and categorical columns
         types = np.array([dt for dt in dataDeposits.dtypes])
         all_columns = dataDeposits.columns.values
@@ -253,6 +258,7 @@ class EtlService(metaclass=SingletonMeta):
         return data
 
     def save_object(self, filename, model):
+        print('>>> EtlService:save_object >>>', 'Done !!!')
         with open(filename, 'wb') as file:
             joblib.dump(model, filename)
 

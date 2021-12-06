@@ -20,11 +20,9 @@ class MlService(metaclass=SingletonMeta):
         self.etl = etl
 
     def classify(self, modelname, data):
-        
         dataFrame = pd.DataFrame([data])
         dataFormated = self.etl.featureEngineering(dataFrame, 'clasify')
-        
-        print("classifyyyyyyyyyyyy", dataFormated)
+        print(">>>>>>>>>>>>>>>", dataFormated)
 
         return { "class": 1 }
     
