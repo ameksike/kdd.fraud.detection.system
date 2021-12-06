@@ -20,14 +20,22 @@ class MlService(metaclass=SingletonMeta):
         self.etl = etl
 
     def classify(self, modelname, data):
-        load_model_lr = joblib.load(modelname)
+        
+        dataFrame = pd.DataFrame([data])
+        dataFormated = self.etl.featureEngineering(dataFrame, 'clasify')
+        
+        print("classifyyyyyyyyyyyy", dataFormated)
 
-        predict = load_model_lr.predict([self.etl.factors_prime_encode(data)])
+        return { "class": 1 }
+    
+        load_model_lr = joblib.load(modelname)
+        data = self.etl.featureEngineering(dataFrame)
+        
+        predict = load_model_lr.predict([data])
         predict = predict[0]
-        label = self.etl.switch_fizz_buzz(predict) == "None" if "" else self.etl.switch_fizz_buzz(predict)
         return {
             "class": int(predict),
-            "label": label
+            "label": "label"
         }
 
     def readDataMiningView(self, filename):

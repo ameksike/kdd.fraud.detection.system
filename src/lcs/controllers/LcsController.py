@@ -53,12 +53,12 @@ def traingInfo():
 @app.route("/api/lcs/classify", methods=["POST"])
 def classify():
     path = os.path.dirname(__file__) + "../../../../data/"
-    filename = request.json.get("modelname", "classifier_100_data_model")
-    filename = path + filename + ".pkl"
+    filename = request.json.get("model", "logisticRegression")
+    filename = path + "classifier_" +  filename + "_data_model.pkl"
     filename = os.path.abspath(filename)
-    data = request.json.get("data", 10)
+    data = request.json.get("data")
 
-    result = srvMl.classify(filename, int(data))
+    result = srvMl.classify(filename, data)
     return jsonify(result)
 
 
