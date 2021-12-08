@@ -97,7 +97,7 @@ class EtlService(metaclass=SingletonMeta):
             data_clean_transaction.drop( data_clean_transaction[data_clean_transaction[item['name']] > sup_amount].index, axis=0, inplace=True)
             data_clean_transaction.drop( data_clean_transaction[data_clean_transaction[item['name']] < inf_amount].index, axis=0, inplace=True)
     
-            data = self.jenksBreakMethodTrain(item['name'], data_clean_transaction, data)
+            data = self.jenksBreakMethodTrain(item, data_clean_transaction, data)
             
         return data
             
@@ -181,15 +181,15 @@ class EtlService(metaclass=SingletonMeta):
         return outlierData
     
     # avoid Outlier 
-    def avoidOutlier(self, name_feature, data, outlierData):
-        return pd.cut(data[name_feature], bins=outlierData['breaks'], labels=outlierData["labels"], include_lowest=True)
+    def avoidOutlier(self, feature, data, outlierData):
+        return pd.cut(data[feature['name']], bins=outlierData['breaks'], labels=outlierData["labels"], include_lowest=True)
     
     # avoid Outlier from features
-    def jenksBreakMethodTrain(self, name_feature, dataDepositByFeature, dataDeposits):
+    def jenksBreakMethodTrain(self, feature, dataByFeature, data):
         # with cleaning outliers 'transaction amount'
-        outlierData = self.generateOutlierModel(name_feature, dataDepositByFeature, dataDeposits)
-        dataDeposits[name_feature] =  self.avoidOutlier(name_feature, dataDeposits, outlierData)
-        return dataDeposits
+        outlierData = self.generateOutlierModel(feature, dataByFeature, data)
+        data[feature['name']] =  self.avoidOutlier(feature, data, outlierData)
+        return data
         
     # avoid Outlier from features based on jenksBreak Method
     def jenksBreakMethodClasify(self, data, features):
