@@ -100,55 +100,7 @@ class EtlService(metaclass=SingletonMeta):
             data = self.jenksBreakMethodTrain(item, data_clean_transaction, data)
             
         return data
-            
-    def iqrChekOutlierValues2(self, dataDeposits, outlierFields):
-        for item in outlierFields:
-            # create nominal intervals 
-            print('>>> EtlService:iqrChekOutlierValues >>>')
-            # checking outlier values
-            q1_amount_transaction_amount = dataDeposits['transaction amount'].quantile(.25)
-            q3_amount_transaction_amount = dataDeposits['transaction amount'].quantile(.75)
-            IQR_amount = q3_amount_transaction_amount - q1_amount_transaction_amount
-            print('transaction amount IQR: ', IQR_amount)
-
-            # defining limits
-            sup_amount_transaction_amount = q3_amount_transaction_amount + 1.5 * IQR_amount
-            inf_amount_transaction_amount = q1_amount_transaction_amount - 1.5 * IQR_amount
-            print('transaction amount Upper limit: ', sup_amount_transaction_amount)
-            print('transaction amount Lower limit: ', inf_amount_transaction_amount)
-
-            # checking outlier values
-            q1_amount_user_balance = dataDeposits['user balance'].quantile(.25)
-            q3_amount_user_balance = dataDeposits['user balance'].quantile(.75)
-            IQR_amount = q3_amount_user_balance - q1_amount_user_balance
-            print('user balance IQR: ', IQR_amount)
-            # defining limits
-            sup_amount_user_balance = q3_amount_user_balance + 1.5 * IQR_amount
-            inf_amount_user_balance = q1_amount_user_balance - 1.5 * IQR_amount
-            print('user balance Upper limit: ', sup_amount_user_balance)
-            print('user balance Lower limit: ', inf_amount_user_balance)
-
-            # cleaning the outliers in 'transaction amount' values
-            dataDeposits_clean_transaction = dataDeposits.copy()
-            dataDeposits_clean_transaction.drop(
-                dataDeposits_clean_transaction[dataDeposits_clean_transaction['transaction amount'] >
-                                            sup_amount_transaction_amount].index, axis=0, inplace=True)
-            dataDeposits_clean_transaction.drop(
-                dataDeposits_clean_transaction[dataDeposits_clean_transaction['transaction amount'] <
-                                            inf_amount_transaction_amount].index, axis=0, inplace=True)
-
-            # cleaning the outliers in 'user balance' values
-            dataDeposits_clean_balance = dataDeposits.copy()
-            dataDeposits_clean_balance.drop(dataDeposits_clean_balance[dataDeposits_clean_balance['user balance'] >
-                                                                    sup_amount_user_balance].index, axis=0, inplace=True)
-            dataDeposits_clean_balance.drop(dataDeposits_clean_balance[dataDeposits_clean_balance['user balance'] <
-                                                                    inf_amount_user_balance].index, axis=0, inplace=True)
-            
-            dataDeposits = self.jenksBreakMethodTrain('transaction amount', dataDeposits_clean_transaction, dataDeposits)
-            dataDeposits = self.jenksBreakMethodTrain('user balance', dataDeposits_clean_balance, dataDeposits)
-            
-        return dataDeposits
-
+    
     # generate Outlier 
     def generateOutlierModel(self, feature, dataByFeature, data):
         labels = feature['labels']
