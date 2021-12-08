@@ -44,7 +44,7 @@ class EtlService(metaclass=SingletonMeta):
         data = self.featureEngineering(data)
         
         path = os.path.dirname(__file__) + "../../../../data/"
-        data.to_csv(path + 'dataMiningView.csv')
+        data.to_csv(path + 'datamining_view.csv')
         return data.shape
 
     #description set 'none' to empty string, and set 0 to empty number
@@ -110,7 +110,6 @@ class EtlService(metaclass=SingletonMeta):
                                                                 sup_amount_user_balance].index, axis=0, inplace=True)
         dataDeposits_clean_balance.drop(dataDeposits_clean_balance[dataDeposits_clean_balance['user balance'] <
                                                                 inf_amount_user_balance].index, axis=0, inplace=True)
-
         # create nominal intervals 
         if action == 'train':
             dataDeposits = self.jenksBreakMethodTrain('transaction amount', dataDeposits_clean_transaction, dataDeposits)
@@ -147,7 +146,7 @@ class EtlService(metaclass=SingletonMeta):
         }
 
         filename = name_feature.replace(" ", "_")
-        self.save_object("data/train_outlier_" + filename, outlierData)
+        self.save_object("data/datamining_outlier_" + filename, outlierData)
         print('>>> EtlService:generateOutlierModel!')
         return outlierData
     
@@ -156,9 +155,8 @@ class EtlService(metaclass=SingletonMeta):
     
     # avoid Outlier from features
     def jenksBreakMethodTrain(self, name_feature, dataDepositByFeature, dataDeposits):
-        print('>>> EtlService:jenksBreakMethodTrain >>>')
         # with cleaning outliers 'transaction amount'
-        outlierData = self.generateOutlierModel(dataDepositByFeature, dataDeposits)
+        outlierData = self.generateOutlierModel(name_feature, dataDepositByFeature, dataDeposits)
         dataDeposits[name_feature] =  self.avoidOutlier(name_feature, dataDeposits, outlierData)
         return dataDeposits
         
@@ -167,7 +165,7 @@ class EtlService(metaclass=SingletonMeta):
         print('>>> EtlService:jenksBreakMethodClasify >>>')
         # with cleaning outliers 'transaction amount'
         filename = name_feature.replace(" ", "_")
-        outlierData = self.load_object(filename)
+        outlierData = self.load_object("data/datamining_outlier_" + filename)
         dataDeposits[name_feature] =  self.avoidOutlier(name_feature, dataDeposits, outlierData)
         return dataDeposits
 

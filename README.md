@@ -61,7 +61,7 @@ Request:
 ```
 POST http://127.0.0.1:8000/api/lcs/traing
 {
-    "modelname": "dataMiningView"
+    "modelname": "datamining_view"
 }
 ```
 Response:
@@ -105,7 +105,7 @@ Response:
     "ensembleClassify"
   ], 
   "dataMinings": [
-    "dataMiningView"
+    "datamining_view"
   ]
 }
 ```
