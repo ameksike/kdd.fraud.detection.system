@@ -20,9 +20,13 @@ class MlService(metaclass=SingletonMeta):
         self.etl = etl
 
     def classify(self, modelname, data):
-        dataFrame = pd.DataFrame([data])
+        dataFrame = pd.DataFrame(data)
+        
+        #print('>>> classify >>>>>>>>>>>>>>>>>>>>>>>>>>>>', dataFrame)
+        #print('>>> classify >>>>>>>>>>>>>>>>>>>>>>>>>>>>', dataFrame.get('transaction amount', '......'))
         dataFormated = self.etl.featureEngineering(dataFrame, 'clasify')
-        print(">>>>>>>>>>>>>>>", dataFormated)
+        print(">>>>>>>>>>>>>>>", dataFormated['transaction amount_DECLINE'])
+        print(">>>>>>>>>>>>>>>", dataFormated['transaction amount_APPROVE'])
 
         return { "class": 1 }
     

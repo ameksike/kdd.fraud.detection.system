@@ -113,9 +113,9 @@ Response:
 ### Classify
 Request:
 ```
-POST http://127.0.0.1:8000/api/lcs/
+POST http://127.0.0.1:8000/api/lcs/classify
 {
-  "model": "",
+  "model": "logisticRegression",
   "data": [
         {
           "tpv name": "PNP",
