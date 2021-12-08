@@ -1,6 +1,13 @@
 from services.SingletonMeta import SingletonMeta
 
 class EdaService(metaclass=SingletonMeta):
+    
+    def getOutlierFields(self): 
+        return [
+            { "name": 'transaction amount', "labels": ['small', 'medium', 'big'] },
+            { "name": 'user balance', "labels": ['small', 'medium', 'big'] }
+        ]
+    
     def getProperties(self):
         return [
             'tpv name', 'billing country', 'billing user country',

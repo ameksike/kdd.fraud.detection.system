@@ -29,7 +29,7 @@ def generate():
 @app.route("/api/lcs/traing", methods=["POST"])
 def traing():
     path = os.path.dirname(__file__) + "../../../../data/"
-    filename = request.json.get("modelname", "dataMiningView")
+    filename = request.json.get("modelname", "datamining_view")
     filename = path + filename + ".csv"
     filename = os.path.abspath(filename)
     model = srvMl.train(filename)
@@ -43,7 +43,7 @@ def traing():
 @app.route("/api/lcs/traing", methods=["GET"])
 def traingInfo():
     return jsonify({
-        "dataMinings": ["dataMiningView"],
+        "dataMinings": ["datamining_view"],
         "algorithms": ["logisticRegression", "ensembleClassify"]
     })
 
@@ -53,12 +53,12 @@ def traingInfo():
 @app.route("/api/lcs/classify", methods=["POST"])
 def classify():
     path = os.path.dirname(__file__) + "../../../../data/"
-    filename = request.json.get("modelname", "classifier_100_data_model")
-    filename = path + filename + ".pkl"
+    filename = request.json.get("model", "logisticRegression")
+    filename = path + "classifier_" +  filename + "_data_model.pkl"
     filename = os.path.abspath(filename)
-    data = request.json.get("data", 10)
+    data = request.json.get("data")
 
-    result = srvMl.classify(filename, int(data))
+    result = srvMl.classify(filename, data)
     return jsonify(result)
 
 
