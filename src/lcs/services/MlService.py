@@ -21,18 +21,16 @@ class MlService(metaclass=SingletonMeta):
 
     def classify(self, modelname, data):
         dataFrame = pd.DataFrame(data)
-        
-        #print('>>> classify >>>>>>>>>>>>>>>>>>>>>>>>>>>>', dataFrame)
-        #print('>>> classify >>>>>>>>>>>>>>>>>>>>>>>>>>>>', dataFrame.get('transaction amount', '......'))
         dataFormated = self.etl.featureEngineering(dataFrame, 'clasify')
-        print(">>>>>>>>>>>>>>>", dataFormated['transaction amount_DECLINE'])
-        print(">>>>>>>>>>>>>>>", dataFormated['transaction amount_APPROVE'])
-
+        
+        load_model_lr = joblib.load(modelname)
+        predict = load_model_lr.predict([dataFormated])
+        
+        #print(">>>>>>>>>>>>>>>", dataFormated['transaction amount_APPROVE'])
+        print(">>>>>>>>>>>>>>>", predict)
+        
         return { "class": 1 }
     
-        load_model_lr = joblib.load(modelname)
-        data = self.etl.featureEngineering(dataFrame)
-        
         predict = load_model_lr.predict([data])
         predict = predict[0]
         return {

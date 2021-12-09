@@ -150,7 +150,7 @@ class EtlService(metaclass=SingletonMeta):
         for item in features:
             filename = item['name'].replace(" ", "_")
             outlierData = self.load_object("data/datamining_outlier_" + filename)
-            data[item['name']] =  self.avoidOutlier(item['name'], data, outlierData)
+            data[item['name']] =  self.avoidOutlier(item, data, outlierData)
         return data
 
     # Featurizing the data
