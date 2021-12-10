@@ -23,11 +23,16 @@ class MlService(metaclass=SingletonMeta):
         dataFrame = pd.DataFrame(data)
         dataFormated = self.etl.featureEngineering(dataFrame, 'clasify')
         
+               
+        print(">>>>>>>>>>>>>>> - modelname - ", modelname)
         load_model_lr = joblib.load(modelname)
-        predict = load_model_lr.predict([dataFormated])
+        
+        print(">>>>>>>>>>>>>>> - load_model_lr - ", load_model_lr)
+        predict = load_model_lr.predict(dataFormated)
+        #predict = load_model_lr.predict([dataFormated])
         
         #print(">>>>>>>>>>>>>>>", dataFormated['transaction amount_APPROVE'])
-        print(">>>>>>>>>>>>>>>", predict)
+        print(">>>>>>>>>>>>>>> - predict - ", predict)
         
         return { "class": 1 }
     
@@ -187,16 +192,22 @@ class MlService(metaclass=SingletonMeta):
             #cv_auc_score.append(roc_auc_score(y_val, y_pred_prob))
             cv_auc_score[ str( i) ] = roc_auc_score(y_val, y_pred_prob)
             print('>>> MLService:logisticRegressionTrain >>>', 'For alpha {0}, cross validation AUC score {1}'.format(i, roc_auc_score(y_val, y_pred_prob)))
-
+        
         lstScoring = list(cv_auc_score.values())
         maxIndex = np.argmax(lstScoring)
+        
+        clasify = SGDClassifier(alpha=alpha[maxIndex], penalty='l1', class_weight='balanced', loss='log', random_state=28)
+        clasify.fit(X_train_final[selected_features], y_train)
+        cla_clf = CalibratedClassifierCV(clasify, method='sigmoid')
+        cla_clf.fit(X_train_final[selected_features], y_train)
+        
         trainModel = {
             "max": {
                 "alpha": alpha[maxIndex],
                 "score": lstScoring[maxIndex]
             },
             "list": cv_auc_score,
-            "clasifier": SGDClassifier(alpha=alpha[maxIndex], penalty='l1', class_weight='balanced', loss='log', random_state=28)
+            "clasifier": cla_clf
         }
         print('>>> MLService:logisticRegressionTrain >>>', 'The Optimal C value is:', trainModel['max']['alpha'])
         return trainModel
