@@ -17,6 +17,7 @@
 ## Install
 - git clone https://github.com/ameksike/kdd.fraud.detection.system.git
 - virtualenv env
+- python -m venv ./env
 - .\env\Scripts\activate
 - pip install -r requirements.txt
 - pip list
