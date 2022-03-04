@@ -28,11 +28,17 @@ class EtlService(metaclass=SingletonMeta):
         
         return data
 
+    def getFilterData(self, data):
+        properties = self.eda.getProperties()
+        return pd.DataFrame(data, columns=properties )
+        
     def featureEngineering(self, data, action='train'):
         # Missing value
         data = self.missingValue(data)
+        print('<<< EtlService:featureEngineering: missingValue:', data)
         # Same format
         data = self.sameFormat(data)
+        print('<<< EtlService:featureEngineering: sameFormat:', data)
         
         # Checking outlier values
         outlierFields = self.eda.getOutlierFields()
@@ -41,7 +47,9 @@ class EtlService(metaclass=SingletonMeta):
         else:
             data = self.jenksBreakMethodClasify(data, outlierFields)
         # Featurization data
+        print('<<< EtlService:featureEngineering: jenksBreakMethodClasify:', data)
         data = self.featurizationData(data)
+        print('<<< EtlService:featureEngineering: featurizationData:', data)
         return data
 
     def generate(self):
@@ -145,8 +153,9 @@ class EtlService(metaclass=SingletonMeta):
         
     # avoid Outlier from features based on jenksBreak Method
     def jenksBreakMethodClasify(self, data, features):
-        print('>>> EtlService:jenksBreakMethodClasify')
+        print('>>> EtlService:jenksBreakMethodClasify') 
         # with cleaning outliers 'transaction amount'
+        print('>>> EtlService:jenksBreakMethodClasify data >>>', data)
         for item in features:
             filename = item['name'].replace(" ", "_")
             outlierData = self.load_object("data/datamining_outlier_" + filename)
@@ -167,8 +176,8 @@ class EtlService(metaclass=SingletonMeta):
         cat_cols = all_columns[~is_num & ~isClass]
         category_cols = all_columns[is_category]
 
-        print(cat_cols)
-        print(category_cols)
+        print('>>> EtlService:featurizationData >>>', cat_cols)
+        print('>>> EtlService:featurizationData >>>', category_cols)
 
         # Featurization of categorical data
         # calling the above defined functions

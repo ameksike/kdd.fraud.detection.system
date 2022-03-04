@@ -19,12 +19,28 @@ class MlService(metaclass=SingletonMeta):
     def setEtl(self, etl):
         self.etl = etl
 
+    def getFeatureSelected(self): 
+        features = 'data/train_select_featuresBalancedClasses.txt'
+        featuresFile = open(features, 'rb')
+        # dump information to that file
+        features = pickle.load(featuresFile)
+        # close the file
+        featuresFile.close()
+        return features
+
     def classify(self, modelname, data):
-        dataFrame = pd.DataFrame(data)
+        dataFrame1 = self.etl.getFilterData(data)
+        # Replace class value: 'APPROVE' = 0, 'DECLINE' = 1
+        dataFrame = self.etl.replaceClassValue(dataFrame1)
         dataFormated = self.etl.featureEngineering(dataFrame, 'clasify')
-        
-               
+        features = self.getFeatureSelected()
+
+        print(">>>>>>>>>>>>>>> - features - ", features)
+        print(">>>>>>>>>>>>>>> - selectedData1 - ", dataFormated)
+        dataFormated = dataFormated[features]
+        print(">>>>>>>>>>>>>>> - selectedData2 - ", dataFormated)
         print(">>>>>>>>>>>>>>> - modelname - ", modelname)
+
         load_model_lr = joblib.load(modelname)
         
         print(">>>>>>>>>>>>>>> - load_model_lr - ", load_model_lr)
