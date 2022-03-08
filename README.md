@@ -1,5 +1,10 @@
 # TropiPay Fraud Detection System 
 
+## algorithms
+- Light GBM
+- Random Forest
+- Logistic Regression
+
 ## Skeleton 
 
 ```plain
