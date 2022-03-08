@@ -99,7 +99,7 @@ class MlService(metaclass=SingletonMeta):
         print('>>> MLService:dividingData >>>  Shape of data before dividing final data:', df_AfterPreProc.shape)
 
         # get class labels for fraud state
-        y = df_AfterPreProc.pop('fraud state').values
+        y = df_AfterPreProc.pop('fraud_state').values
         print('>>> MLService:dividingData >>> class_labels', y)
 
         # train split

@@ -16,14 +16,14 @@ class EtlService(metaclass=SingletonMeta):
         properties = self.eda.getProperties()
 
         data = pd.read_csv(filename, usecols=properties, dtype={
-            'user verification level': str, 
-            'email valid': str, 
-            'ip vpn': str,
-            'phone valid': str
+            'user_verification_level': str, 
+            'email_valid': str, 
+            'ip_vpn': str,
+            'phone_valid': str
         }, low_memory=False)
 
         # used only class, clean data 
-        data = data[((data['fraud state'] == 'APPROVE') | (data['fraud state'] == 'DECLINE'))]
+        data = data[((data['fraud_state'] == 'APPROVE') | (data['fraud_state'] == 'DECLINE'))]
         print('<<< EtlService:EtlService: The shape of data:', data.shape)
         
         return data
@@ -31,7 +31,7 @@ class EtlService(metaclass=SingletonMeta):
     def getFilterData(self, data):
         properties = self.eda.getProperties()
         return pd.DataFrame(data, columns=properties )
-        
+           
     def featureEngineering(self, data, action='train'):
         # Missing value
         data = self.missingValue(data)
@@ -170,8 +170,8 @@ class EtlService(metaclass=SingletonMeta):
         all_columns = dataDeposits.columns.values
         is_num = (types != 'object')
         is_category = (types != 'object') & (types != 'float64') & (types != 'int64')
-        isClass = all_columns == 'fraud state'
-        isDiscretization = (all_columns == 'user balance') | (all_columns == 'transaction amount')
+        isClass = all_columns == 'fraud_state'
+        isDiscretization = (all_columns == 'user_balance') | (all_columns == 'transaction_amount')
         num_cols = all_columns[is_num & ~isDiscretization]
         cat_cols = all_columns[~is_num & ~isClass]
         category_cols = all_columns[is_category]
@@ -218,7 +218,7 @@ class EtlService(metaclass=SingletonMeta):
         dict_occurrences = {'APPROVE': {}, 'DECLINE': {}}
         for label in ['DECLINE', 'APPROVE']:
             dict_occurrences[label] = dict(
-                (data[column][data['fraud state'] == label].value_counts() / data[column].value_counts()).fillna(0))
+                (data[column][data['fraud_state'] == label].value_counts() / data[column].value_counts()).fillna(0))
         return dict_occurrences
 
     def responseTransform(self, data, column, dict_mapping):
@@ -244,8 +244,8 @@ class EtlService(metaclass=SingletonMeta):
 
     def replaceClassValue(self, data):
         # Replace class value: 'APPROVE' = 0, 'DECLINE' = 1
-        data['fraud state'] = data['fraud state'].replace(['APPROVE'], 0)
-        data['fraud state'] = data['fraud state'].replace(['DECLINE'], 1)
+        data['fraud_state'] = data['fraud_state'].replace(['APPROVE'], 0)
+        data['fraud_state'] = data['fraud_state'].replace(['DECLINE'], 1)
         return data
 
     def save_object(self, filename, model):
