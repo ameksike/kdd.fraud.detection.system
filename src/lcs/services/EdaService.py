@@ -4,30 +4,30 @@ class EdaService(metaclass=SingletonMeta):
     
     def getOutlierFields(self): 
         return [
-            { "name": 'transaction amount', "labels": ['small', 'medium', 'big'] },
-            { "name": 'user balance', "labels": ['small', 'medium', 'big'] }
+            { "name": 'transaction_amount', "labels": ['small', 'medium', 'big'] },
+            { "name": 'user_balance', "labels": ['small', 'medium', 'big'] }
         ]
     
     def getProperties(self):
         return [
-            'tpv name', 'billing country', 'billing user country',
-            'card brand', 'card sub brand', 'email domain',
-            'ip geo code', 'ip geo region', 'ip geo timezone',
-            'order memo', 'tpp error reason',
-            'user country', 'user verification level', 'user zip',
-            'email valid', 'ip vpn',
-            'phone country', 'phone valid',
-            'user category', 'user agent browser family', 'user agent device family',
-            'user agent os family', 'user account status',
-            'transaction type', 'transaction currency',
-            'tpv card dcc', 'tpv alert indicator', 'tpv card3d s2 partition',
-            'tpv card aut3 d secure2 method',
-            'same card operations', 'same card operations day',
-            'same card operations fraud',
-            'same card shared ip', 'same card shared ip day', 'same card shared ip fraud',
-            'same card shared user', 'same card shared user day', 'same device fingerprint',
-            'same device fingerprint fraud', 'same ip operations', 'same ip operations day',
-            'same ip operations fraud', 'same user operations day',
-            'transaction amount', 'user balance',
-            'fraud state'
+            'tpv_name', 'billing_country', 'billing_user_country',
+            'card_brand', 'card_sub_brand', 'email_domain',
+            'ip_geo_code', 'ip_geo_region', 'ip_geo_timezone',
+            'order_memo', 'tpp_error_reason',
+            'user_country', 'user_verification_level', 'user_zip',
+            'email_valid', 'ip_vpn',
+            'phone_country', 'phone_valid',
+            'user_category', 'user_agent_browser_family', 'user_agent_device_family',
+            'user_agent_os_family', 'user_account_status',
+            'transaction_type', 'transaction_currency',
+            'tpv_card_dcc', 'tpv_alert_indicator', 'tpv_card3d_s2_partition',
+            'tpv_card_aut3_d_secure2_method',
+            'same_card_operations', 'same_card_operations_day',
+            'same_card_operations_fraud',
+            'same_card_shared_ip', 'same_card_shared_ip_day', 'same_card_shared_ip_fraud',
+            'same_card_shared_user', 'same_card_shared_user_day', 'same_device_fingerprint',
+            'same_device_fingerprint_fraud', 'same_ip_operations', 'same_ip_operations_day',
+            'same_ip_operations_fraud', 'same_user_operations_day',
+            'transaction_amount', 'user_balance',
+            'fraud_state'
         ]

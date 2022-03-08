@@ -16,23 +16,29 @@ class EtlService(metaclass=SingletonMeta):
         properties = self.eda.getProperties()
 
         data = pd.read_csv(filename, usecols=properties, dtype={
-            'user verification level': str, 
-            'email valid': str, 
-            'ip vpn': str,
-            'phone valid': str
+            'user_verification_level': str, 
+            'email_valid': str, 
+            'ip_vpn': str,
+            'phone_valid': str
         }, low_memory=False)
 
         # used only class, clean data 
-        data = data[((data['fraud state'] == 'APPROVE') | (data['fraud state'] == 'DECLINE'))]
+        data = data[((data['fraud_state'] == 'APPROVE') | (data['fraud_state'] == 'DECLINE'))]
         print('<<< EtlService:EtlService: The shape of data:', data.shape)
         
         return data
 
+    def getFilterData(self, data):
+        properties = self.eda.getProperties()
+        return pd.DataFrame(data, columns=properties )
+           
     def featureEngineering(self, data, action='train'):
         # Missing value
         data = self.missingValue(data)
+        print('<<< EtlService:featureEngineering: missingValue:', data)
         # Same format
         data = self.sameFormat(data)
+        print('<<< EtlService:featureEngineering: sameFormat:', data)
         
         # Checking outlier values
         outlierFields = self.eda.getOutlierFields()
@@ -41,7 +47,9 @@ class EtlService(metaclass=SingletonMeta):
         else:
             data = self.jenksBreakMethodClasify(data, outlierFields)
         # Featurization data
+        print('<<< EtlService:featureEngineering: jenksBreakMethodClasify:', data)
         data = self.featurizationData(data)
+        print('<<< EtlService:featureEngineering: featurizationData:', data)
         return data
 
     def generate(self):
@@ -145,12 +153,13 @@ class EtlService(metaclass=SingletonMeta):
         
     # avoid Outlier from features based on jenksBreak Method
     def jenksBreakMethodClasify(self, data, features):
-        print('>>> EtlService:jenksBreakMethodClasify')
+        print('>>> EtlService:jenksBreakMethodClasify') 
         # with cleaning outliers 'transaction amount'
+        print('>>> EtlService:jenksBreakMethodClasify data >>>', data)
         for item in features:
             filename = item['name'].replace(" ", "_")
             outlierData = self.load_object("data/datamining_outlier_" + filename)
-            data[item['name']] =  self.avoidOutlier(item['name'], data, outlierData)
+            data[item['name']] =  self.avoidOutlier(item, data, outlierData)
         return data
 
     # Featurizing the data
@@ -161,14 +170,14 @@ class EtlService(metaclass=SingletonMeta):
         all_columns = dataDeposits.columns.values
         is_num = (types != 'object')
         is_category = (types != 'object') & (types != 'float64') & (types != 'int64')
-        isClass = all_columns == 'fraud state'
-        isDiscretization = (all_columns == 'user balance') | (all_columns == 'transaction amount')
+        isClass = all_columns == 'fraud_state'
+        isDiscretization = (all_columns == 'user_balance') | (all_columns == 'transaction_amount')
         num_cols = all_columns[is_num & ~isDiscretization]
         cat_cols = all_columns[~is_num & ~isClass]
         category_cols = all_columns[is_category]
 
-        print(cat_cols)
-        print(category_cols)
+        print('>>> EtlService:featurizationData >>>', cat_cols)
+        print('>>> EtlService:featurizationData >>>', category_cols)
 
         # Featurization of categorical data
         # calling the above defined functions
@@ -209,7 +218,7 @@ class EtlService(metaclass=SingletonMeta):
         dict_occurrences = {'APPROVE': {}, 'DECLINE': {}}
         for label in ['DECLINE', 'APPROVE']:
             dict_occurrences[label] = dict(
-                (data[column][data['fraud state'] == label].value_counts() / data[column].value_counts()).fillna(0))
+                (data[column][data['fraud_state'] == label].value_counts() / data[column].value_counts()).fillna(0))
         return dict_occurrences
 
     def responseTransform(self, data, column, dict_mapping):
@@ -235,8 +244,8 @@ class EtlService(metaclass=SingletonMeta):
 
     def replaceClassValue(self, data):
         # Replace class value: 'APPROVE' = 0, 'DECLINE' = 1
-        data['fraud state'] = data['fraud state'].replace(['APPROVE'], 0)
-        data['fraud state'] = data['fraud state'].replace(['DECLINE'], 1)
+        data['fraud_state'] = data['fraud_state'].replace(['APPROVE'], 0)
+        data['fraud_state'] = data['fraud_state'].replace(['DECLINE'], 1)
         return data
 
     def save_object(self, filename, model):

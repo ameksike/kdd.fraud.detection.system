@@ -19,20 +19,39 @@ class MlService(metaclass=SingletonMeta):
     def setEtl(self, etl):
         self.etl = etl
 
-    def classify(self, modelname, data):
-        dataFrame = pd.DataFrame(data)
-        
-        #print('>>> classify >>>>>>>>>>>>>>>>>>>>>>>>>>>>', dataFrame)
-        #print('>>> classify >>>>>>>>>>>>>>>>>>>>>>>>>>>>', dataFrame.get('transaction amount', '......'))
-        dataFormated = self.etl.featureEngineering(dataFrame, 'clasify')
-        print(">>>>>>>>>>>>>>>", dataFormated['transaction amount_DECLINE'])
-        print(">>>>>>>>>>>>>>>", dataFormated['transaction amount_APPROVE'])
+    def getFeatureSelected(self): 
+        features = 'data/train_select_featuresBalancedClasses.txt'
+        featuresFile = open(features, 'rb')
+        # dump information to that file
+        features = pickle.load(featuresFile)
+        # close the file
+        featuresFile.close()
+        return features
 
+    def classify(self, modelname, data):
+        dataFrame1 = self.etl.getFilterData(data)
+        # Replace class value: 'APPROVE' = 0, 'DECLINE' = 1
+        dataFrame = self.etl.replaceClassValue(dataFrame1)
+        dataFormated = self.etl.featureEngineering(dataFrame, 'clasify')
+        features = self.getFeatureSelected()
+
+        print(">>>>>>>>>>>>>>> - features - ", features)
+        print(">>>>>>>>>>>>>>> - selectedData1 - ", dataFormated)
+        dataFormated = dataFormated[features]
+        print(">>>>>>>>>>>>>>> - selectedData2 - ", dataFormated)
+        print(">>>>>>>>>>>>>>> - modelname - ", modelname)
+
+        load_model_lr = joblib.load(modelname)
+        
+        print(">>>>>>>>>>>>>>> - load_model_lr - ", load_model_lr)
+        predict = load_model_lr.predict(dataFormated)
+        #predict = load_model_lr.predict([dataFormated])
+        
+        #print(">>>>>>>>>>>>>>>", dataFormated['transaction amount_APPROVE'])
+        print(">>>>>>>>>>>>>>> - predict - ", predict)
+        
         return { "class": 1 }
     
-        load_model_lr = joblib.load(modelname)
-        data = self.etl.featureEngineering(dataFrame)
-        
         predict = load_model_lr.predict([data])
         predict = predict[0]
         return {
@@ -80,7 +99,7 @@ class MlService(metaclass=SingletonMeta):
         print('>>> MLService:dividingData >>>  Shape of data before dividing final data:', df_AfterPreProc.shape)
 
         # get class labels for fraud state
-        y = df_AfterPreProc.pop('fraud state').values
+        y = df_AfterPreProc.pop('fraud_state').values
         print('>>> MLService:dividingData >>> class_labels', y)
 
         # train split
@@ -189,16 +208,22 @@ class MlService(metaclass=SingletonMeta):
             #cv_auc_score.append(roc_auc_score(y_val, y_pred_prob))
             cv_auc_score[ str( i) ] = roc_auc_score(y_val, y_pred_prob)
             print('>>> MLService:logisticRegressionTrain >>>', 'For alpha {0}, cross validation AUC score {1}'.format(i, roc_auc_score(y_val, y_pred_prob)))
-
+        
         lstScoring = list(cv_auc_score.values())
         maxIndex = np.argmax(lstScoring)
+        
+        clasify = SGDClassifier(alpha=alpha[maxIndex], penalty='l1', class_weight='balanced', loss='log', random_state=28)
+        clasify.fit(X_train_final[selected_features], y_train)
+        cla_clf = CalibratedClassifierCV(clasify, method='sigmoid')
+        cla_clf.fit(X_train_final[selected_features], y_train)
+        
         trainModel = {
             "max": {
                 "alpha": alpha[maxIndex],
                 "score": lstScoring[maxIndex]
             },
             "list": cv_auc_score,
-            "clasifier": SGDClassifier(alpha=alpha[maxIndex], penalty='l1', class_weight='balanced', loss='log', random_state=28)
+            "clasifier": cla_clf
         }
         print('>>> MLService:logisticRegressionTrain >>>', 'The Optimal C value is:', trainModel['max']['alpha'])
         return trainModel
