@@ -60,6 +60,7 @@ class EdaService(metaclass=SingletonMeta):
         ]
     
     def getProperties(self):
+        # it should be changed to select key from getTypeFields
         return [
             'tpv_name', 'billing_country', 'billing_user_country',
             'card_brand', 'card_sub_brand', 'email_domain',

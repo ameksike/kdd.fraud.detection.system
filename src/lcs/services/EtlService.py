@@ -167,7 +167,7 @@ class EtlService(metaclass=SingletonMeta):
         all_columns = dataDeposits.columns.values
 
         """
-        se debe hacer un cambio para identificar: cat_cols y category_cols a partir de eda.getTypeFields
+        it should be changed to identify: cat_cols and category_cols from eda.getTypeFields
 
         dataTypes = {}
         for i in range( len(all_columns)) :
