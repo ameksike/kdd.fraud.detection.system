@@ -1,3 +1,8 @@
+# Related projects
+- [Fizz Buzz classifier](https://github.com/ameksike/kdd.fizz.buzz.classifier)
+- [TP Fraud Detection System](https://github.com/ameksike/kdd.fraud.detection.system)
+- [KDD Naive Bayes Classifier](https://github.com/ameksike/kdd.naive.bayes.classifier)
+  
 # TropiPay Fraud Detection System 
 
 ## algorithms
