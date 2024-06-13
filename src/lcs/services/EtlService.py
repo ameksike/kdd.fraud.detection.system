@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import jenkspy
 import joblib
+import json
 from sklearn import linear_model
 import os
 
@@ -14,13 +15,9 @@ class EtlService(metaclass=SingletonMeta):
         filename = os.path.dirname(__file__) + "../../../../data/data_source.csv"
         filename = os.path.abspath(filename)
         properties = self.eda.getProperties()
+        fieldTypes = self.eda.getTypeFields()
 
-        data = pd.read_csv(filename, usecols=properties, dtype={
-            'user_verification_level': str, 
-            'email_valid': str, 
-            'ip_vpn': str,
-            'phone_valid': str
-        }, low_memory=False)
+        data = pd.read_csv(filename, usecols=properties, dtype=fieldTypes, low_memory=False)
 
         # used only class, clean data 
         data = data[((data['fraud_state'] == 'APPROVE') | (data['fraud_state'] == 'DECLINE'))]
@@ -168,6 +165,19 @@ class EtlService(metaclass=SingletonMeta):
         # Separation of columns into numeric and categorical columns
         types = np.array([dt for dt in dataDeposits.dtypes])
         all_columns = dataDeposits.columns.values
+
+        """
+        it should be changed to identify: cat_cols and category_cols from eda.getTypeFields
+
+        dataTypes = {}
+        for i in range( len(all_columns)) :
+            dataTypes[all_columns[i]] = types[i].name
+        list = dataTypes.keys()
+        print('>>> EtlService:list >>>', list)
+        with open('data.json', 'w') as fp:
+            json.dump(dataTypes, fp,  indent=4)
+        """
+        
         is_num = (types != 'object')
         is_category = (types != 'object') & (types != 'float64') & (types != 'int64')
         isClass = all_columns == 'fraud_state'

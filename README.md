@@ -5,7 +5,7 @@
   
 # TropiPay Fraud Detection System 
 
-## algorithms
+## Algorithms
 - Light GBM
 - Random Forest
 - Logistic Regression
